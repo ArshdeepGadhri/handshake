@@ -20,7 +20,20 @@ export async function PATCH(
 
     const body = await request.json();
 
-    // Only allow updating safe fields — never user_id
+    // Fetch existing contact to ensure we have all fields for the embedding
+    const { data: existingContact, error: fetchError } = await supabase
+      .from('contacts')
+      .select('*')
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .single();
+
+    if (fetchError || !existingContact) {
+      return NextResponse.json({ success: false, error: 'Contact not found.' }, { status: 404 });
+    }
+
+    // Merge body with existing contact
+    const updatedData = { ...existingContact, ...body };
     const {
       first_name,
       last_name,
@@ -32,11 +45,27 @@ export async function PATCH(
       linkedin_url,
       conference_name,
       location,
+      city,
+      tags,
       notes,
       where_met,
       talking_points,
       follow_up,
-    } = body;
+    } = updatedData;
+
+    // Regenerate embedding for semantic search
+    const { generateEmbedding, createContactSearchText } = await import('@/lib/embeddings');
+    const combinedText = createContactSearchText({
+      first_name,
+      last_name,
+      company,
+      job_title,
+      conference_name,
+      city,
+      tags,
+      notes: `${notes || ''} ${where_met || ''} ${talking_points || ''} ${follow_up || ''}`.trim(),
+    });
+    const embedding = await generateEmbedding(combinedText);
 
     const { data, error } = await supabase
       .from('contacts')
@@ -51,10 +80,13 @@ export async function PATCH(
         linkedin_url,
         conference_name,
         location,
+        city,
+        tags,
         notes,
         where_met,
         talking_points,
         follow_up,
+        embedding,
       })
       .eq('id', id)
       .eq('user_id', user.id) // ensures users can only edit their own contacts

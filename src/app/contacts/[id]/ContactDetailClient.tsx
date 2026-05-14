@@ -28,6 +28,8 @@ interface Contact {
   linkedin_url: string | null;
   conference_name: string | null;
   location: string | null;
+  city: string | null;
+  tags: string[] | null;
   notes: string | null;
   where_met: string | null;
   talking_points: string | null;
@@ -157,6 +159,8 @@ export default function ContactDetailClient({ contact: initialContact }: { conta
   const [isGeneratingEmail, setIsGeneratingEmail] = useState(false);
   const [emailResult, setEmailResult] = useState<EmailResult | null>(null);
 
+  const [tagsString, setTagsString] = useState(initialContact.tags?.join(', ') ?? '');
+
   const timersRef = useRef<{ [key: string]: NodeJS.Timeout }>({});
 
   useEffect(() => {
@@ -169,6 +173,7 @@ export default function ContactDetailClient({ contact: initialContact }: { conta
       follow_up: initialContact.follow_up ?? '',
       notes: initialContact.notes ?? '',
     });
+    setTagsString(initialContact.tags?.join(', ') ?? '');
   }, [initialContact]);
 
   useEffect(() => {
@@ -194,6 +199,7 @@ export default function ContactDetailClient({ contact: initialContact }: { conta
   // ─── Edit handlers ────────────────────────────────────────────────────────
   const handleEditToggle = () => {
     setEditDraft(contact);
+    setTagsString(contact.tags?.join(', ') ?? '');
     setIsEditing(true);
     setSaveError('');
   };
@@ -207,10 +213,11 @@ export default function ContactDetailClient({ contact: initialContact }: { conta
     setIsSaving(true);
     setSaveError('');
     try {
+      const finalTags = tagsString.split(',').map(t => t.trim()).filter(Boolean);
       const res = await fetch(`/api/contacts/${contact.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editDraft),
+        body: JSON.stringify({ ...editDraft, tags: finalTags }),
       });
       const json = await res.json();
       if (!res.ok || !json.success) throw new Error(json.error ?? 'Save failed');
@@ -232,7 +239,7 @@ export default function ContactDetailClient({ contact: initialContact }: { conta
       const res = await fetch(`/api/contacts/${contact.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...notes }),
+        body: JSON.stringify({ ...contact, ...notes }),
       });
       const json = await res.json();
       if (!res.ok || !json.success) throw new Error(json.error ?? 'Save failed');
@@ -355,6 +362,17 @@ export default function ContactDetailClient({ contact: initialContact }: { conta
                   <Label>Conference / Event</Label>
                   <Input value={editDraft.conference_name ?? ''} onChange={(e) => setEditDraft((p) => ({ ...p, conference_name: e.target.value }))} />
                 </div>
+                <div className="space-y-1">
+                  <Label>City</Label>
+                  <Input value={editDraft.city ?? ''} onChange={(e) => setEditDraft((p) => ({ ...p, city: e.target.value }))} />
+                </div>
+                <div className="space-y-1">
+                  <Label>Tags (comma separated)</Label>
+                  <Input 
+                    value={tagsString} 
+                    onChange={(e) => setTagsString(e.target.value)} 
+                  />
+                </div>
               </div>
             ) : (
               <>
@@ -365,7 +383,16 @@ export default function ContactDetailClient({ contact: initialContact }: { conta
                 {contact.conference_name && (
                   <div className="flex items-center text-sm text-muted-foreground mt-2 bg-surface-tinted px-3 py-1 rounded-full">
                     <MapPin className="w-3 h-3 mr-1" />
-                    {contact.conference_name}
+                    {contact.conference_name}{contact.city && `, ${contact.city}`}
+                  </div>
+                )}
+                {contact.tags && contact.tags.length > 0 && (
+                  <div className="flex flex-wrap justify-center gap-1.5 mt-3">
+                    {contact.tags.map((tag, i) => (
+                      <span key={i} className="text-[10px] bg-magenta/10 text-magenta px-2 py-0.5 rounded-md font-bold uppercase tracking-wider">
+                        {tag}
+                      </span>
+                    ))}
                   </div>
                 )}
               </>

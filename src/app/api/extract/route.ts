@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { createAdminClient } from '@/utils/supabase/admin';
 import OpenAI from 'openai';
+import { generateEmbedding, createContactSearchText } from '@/lib/embeddings';
 
 const openai = new OpenAI();
 
@@ -53,7 +54,8 @@ export async function POST(request: Request) {
               'Extract all contact information visible on this business card or conference badge.',
               'Respond with ONLY a JSON object — no markdown, no code fences, no explanation.',
               'Use null for any field that is not present on the card.',
-              'Required keys: first_name, last_name, email, phone, company, job_title, website, linkedin_url',
+              'Required keys: first_name, last_name, email, phone, company, job_title, website, linkedin_url, city, tags',
+              'For tags, provide an array of relevant industry or professional keywords found (e.g. ["Biotech", "Investor", "CEO"]).',
             ].join(' '),
           },
         ],
@@ -82,20 +84,82 @@ export async function POST(request: Request) {
       );
     }
 
-    // ── Insert into Supabase ────────────────────────────────────────────────
-    const contactData = { user_id: user.id, ...extracted };
-    const { data, error } = await supabase
-      .from('contacts')
-      .insert([contactData])
-      .select()
-      .single();
+    // ── Duplicate Detection & Merging ────────────────────────────────────────
+    const { email, phone } = extracted;
+    let existingContact = null;
 
-    if (error) {
-      console.error('[extract] Supabase Insert Error:', error);
-      throw error;
+    if (email || phone) {
+      let query = supabase.from('contacts').select('*').eq('user_id', user.id);
+      
+      if (email && phone) {
+        query = query.or(`email.eq.${email},phone.eq.${phone}`);
+      } else if (email) {
+        query = query.eq('email', email);
+      } else {
+        query = query.eq('phone', phone);
+      }
+
+      const { data: matches } = await query;
+      if (matches && matches.length > 0) {
+        existingContact = matches[0];
+      }
     }
 
-    return NextResponse.json({ success: true, data });
+    let finalContact;
+
+    if (existingContact) {
+      console.log('[extract] Duplicate found, merging with existing contact:', existingContact.id);
+      
+      // Merge: only update null/empty fields
+      const mergeData: any = {};
+      for (const key in extracted) {
+        if (!existingContact[key] && extracted[key]) {
+          mergeData[key] = extracted[key];
+        }
+      }
+
+      // Append notes if needed (optional logic)
+      const newNote = `[Scanned again on ${new Date().toLocaleDateString()}]`;
+      mergeData.notes = existingContact.notes 
+        ? `${existingContact.notes}\n\n${newNote}` 
+        : newNote;
+
+      // Generate new embedding for the merged contact
+      const combinedText = createContactSearchText({ ...existingContact, ...mergeData });
+      mergeData.embedding = await generateEmbedding(combinedText);
+
+      const { data, error } = await supabase
+        .from('contacts')
+        .update(mergeData)
+        .eq('id', existingContact.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      finalContact = data;
+    } else {
+      // ── New Contact Creation ────────────────────────────────────────────────
+      const contactData = { 
+        user_id: user.id, 
+        ...extracted,
+        notes: `[Scanned on ${new Date().toLocaleDateString()}]`
+      };
+      
+      // Generate embedding for new contact
+      const combinedText = createContactSearchText(contactData);
+      contactData.embedding = await generateEmbedding(combinedText);
+
+      const { data, error } = await supabase
+        .from('contacts')
+        .insert([contactData])
+        .select()
+        .single();
+
+      if (error) throw error;
+      finalContact = data;
+    }
+
+    return NextResponse.json({ success: true, data: finalContact });
   } catch (error) {
     console.error('[extract] Error:', error);
     return NextResponse.json(

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import OpenAI from 'openai';
+import { generateEmbedding } from '@/lib/embeddings';
 
 // Singleton OpenAI client to avoid recreating on every request
 const openai = new OpenAI();
@@ -86,6 +87,26 @@ export async function POST(
     });
 
     const subject = subjectChat.choices[0].message.content?.trim().replace(/^["']|["']$/g, '') ?? 'Great connecting with you';
+
+    // ── Save to Interactions Table ──────────────────────────────────────────
+    const interactionText = `Email Subject: ${subject}\n\nEmail Body: ${emailBody}\n\nMeeting Context: ${context}`;
+    const embedding = await generateEmbedding(interactionText);
+
+    const { error: interactionError } = await supabase
+      .from('interactions')
+      .insert([{
+        contact_id: id,
+        meeting_notes: context,
+        ai_summary: `Generated follow-up email: ${subject}`,
+        followup_email: emailBody,
+        embedding: embedding
+      }]);
+
+    if (interactionError) {
+      console.error('[email-generate] Interaction save error:', interactionError);
+      // Don't fail the whole request if saving interaction fails, 
+      // but log it.
+    }
 
     return NextResponse.json({
       success: true,

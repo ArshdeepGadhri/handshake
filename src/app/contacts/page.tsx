@@ -1,40 +1,111 @@
 import AppLayout from '@/components/shared/AppLayout';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Search, MapPin, Building, ChevronRight, Mail, Phone, ChevronLeft } from 'lucide-react';
+import { ChevronRight, ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
 import ExportButton from './ExportButton';
-import DeleteContactButton from './DeleteContactButton';
 import { createClient } from '@/utils/supabase/server';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+
+import SearchInput from './SearchInput';
+import FilterDropdowns from './FilterDropdowns';
+import ContactCard from './ContactCard';
+import { generateEmbedding } from '@/lib/embeddings';
 
 export default async function ContactsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ 
+    page?: string; 
+    q?: string;
+    company?: string;
+    conference?: string;
+    city?: string;
+    tag?: string;
+  }>;
 }) {
-  const { page: pageStr } = await searchParams;
+  const { page: pageStr, q, company, conference, city, tag } = await searchParams;
   const page = parseInt(pageStr || '1', 10);
   const pageSize = 5;
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
 
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  // Fetch contacts from Supabase with range and count
-  const { data: contacts, error, count } = await supabase
+  if (!user) return null;
+
+  let displayContacts: any[] = [];
+  let totalCount = 0;
+  let error: any = null;
+
+  // Hybrid Search Logic
+  if (q || company || conference || city || tag) {
+    let embedding = null;
+    if (q) {
+      try {
+        embedding = await generateEmbedding(q);
+      } catch (err) {
+        console.error('Embedding error:', err);
+      }
+    }
+
+    const { data, error: searchError } = await supabase.rpc('match_contacts', {
+      query_embedding: embedding,
+      match_threshold: 0.4, 
+      match_count: 50, 
+      company_filter: company || null,
+      conference_filter: conference || null,
+      city_filter: city || null,
+      tag_filter: tag || null,
+    });
+    
+    if (searchError) {
+      error = searchError;
+    } else {
+      displayContacts = data || [];
+      totalCount = displayContacts.length;
+      displayContacts = displayContacts.slice(from, to + 1);
+    }
+  } else {
+    // Regular listing
+    const { data, error: fetchError, count } = await supabase
+      .from('contacts')
+      .select('*', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(from, to);
+    
+    displayContacts = data || [];
+    totalCount = count || 0;
+    error = fetchError;
+  }
+
+  // Fetch unique companies for filtering
+  const { data: companiesData } = await supabase
     .from('contacts')
-    .select('*', { count: 'exact' })
-    .order('created_at', { ascending: false })
-    .range(from, to);
+    .select('company')
+    .not('company', 'is', null)
+    .order('company');
+  const companies = Array.from(new Set(companiesData?.map(c => c.company) || []));
+
+  // Fetch unique conferences for filtering
+  const { data: conferencesData } = await supabase
+    .from('contacts')
+    .select('conference_name')
+    .not('conference_name', 'is', null)
+    .order('conference_name');
+  const conferences = Array.from(new Set(conferencesData?.map(c => c.conference_name) || []));
+
+  // Fetch unique tags for filtering
+  const { data: tagsData } = await supabase
+    .from('contacts')
+    .select('tags')
+    .not('tags', 'is', null);
+  const tags = Array.from(new Set(tagsData?.flatMap(c => c.tags || []) || [])).sort();
 
   if (error) {
     console.error('Error fetching contacts:', error);
   }
 
-  const displayContacts = contacts || [];
-  const totalCount = count || 0;
   const totalPages = Math.ceil(totalCount / pageSize);
 
   return (
@@ -50,22 +121,15 @@ export default async function ContactsPage({
           </p>
         </div>
 
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Search by name, company, or conference..."
-            className="pl-9 bg-card"
-          />
-        </div>
+        <SearchInput />
+        
+        <FilterDropdowns 
+          companies={companies} 
+          conferences={conferences} 
+          tags={tags} 
+        />
 
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-          <div className="px-3 py-1 bg-magenta text-white text-xs font-semibold rounded-full whitespace-nowrap">
-            All
-          </div>
-          <div className="px-3 py-1 bg-surface-tinted text-primary text-xs font-semibold rounded-[16px] whitespace-nowrap border border-border">
-            Needs Follow-up
-          </div>
-        </div>
+
 
         {displayContacts.length === 0 ? (
           <div className="text-center py-10 text-muted-foreground">
@@ -80,51 +144,7 @@ export default async function ContactsPage({
           <>
             <div className="space-y-3">
               {displayContacts.map((contact) => (
-                <Link href={`/contacts/${contact.id}`} key={contact.id} className="block">
-                  <Card className="cursor-pointer hover:border-magenta transition-colors h-[100px]">
-                    <CardContent className="p-4 flex items-center h-full">
-                      <div className="flex items-center space-x-4 flex-1 min-w-0">
-                        <div className="w-14 h-14 rounded-full bg-card-fill flex-shrink-0 flex items-center justify-center text-primary font-bold text-lg">
-                          {contact.first_name?.[0] || ''}{contact.last_name?.[0] || ''}
-                        </div>
-                        <div className="flex-1 min-w-0 flex flex-col justify-center">
-                          <h3 className="font-semibold text-primary truncate leading-tight">
-                            {contact.first_name} {contact.last_name}
-                          </h3>
-                          <div className="space-y-0.5 mt-0.5">
-                            {contact.company && (
-                              <div className="flex items-center text-xs text-secondary-foreground font-medium truncate">
-                                <Building className="w-3 h-3 mr-1.5 flex-shrink-0" />
-                                <span className="truncate">{contact.company}</span>
-                              </div>
-                            )}
-                            <div className="flex flex-wrap gap-x-3 gap-y-0.5">
-                              {contact.email && (
-                                <div className="flex items-center text-[10px] text-muted-foreground truncate">
-                                  <Mail className="w-2.5 h-2.5 mr-1 flex-shrink-0" />
-                                  <span className="truncate">{contact.email}</span>
-                                </div>
-                              )}
-                              {contact.phone && (
-                                <div className="flex items-center text-[10px] text-muted-foreground truncate">
-                                  <Phone className="w-2.5 h-2.5 mr-1 flex-shrink-0" />
-                                  <span className="truncate">{contact.phone}</span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-1 flex-shrink-0 ml-2">
-                        <DeleteContactButton 
-                          contactId={contact.id} 
-                          contactName={`${contact.first_name} ${contact.last_name}`} 
-                        />
-                        <ChevronRight className="w-5 h-5 text-muted-foreground" />
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
+                <ContactCard key={contact.id} contact={contact} />
               ))}
             </div>
 
@@ -132,7 +152,10 @@ export default async function ContactsPage({
             {totalPages > 1 && (
               <div className="flex items-center justify-between pt-4">
                 <Link
-                  href={`/contacts?page=${page - 1}`}
+                  href={{
+                    pathname: '/contacts',
+                    query: { page: page - 1, q, company, conference, city, tag }
+                  }}
                   className={cn(
                     buttonVariants({ variant: "outline", size: "sm" }),
                     "flex items-center gap-1",
@@ -148,7 +171,10 @@ export default async function ContactsPage({
                 </span>
 
                 <Link
-                  href={`/contacts?page=${page + 1}`}
+                  href={{
+                    pathname: '/contacts',
+                    query: { page: page + 1, q, company, conference, city, tag }
+                  }}
                   className={cn(
                     buttonVariants({ variant: "outline", size: "sm" }),
                     "flex items-center gap-1",

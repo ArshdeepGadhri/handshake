@@ -26,7 +26,10 @@ create table public.contacts (
   avatar_url text,
   conference_name text,
   location text,
+  city text,
+  tags text[], -- Array of strings for tags
   notes text,
+  embedding vector(1536), -- Contact-level embedding for semantic search
   follow_up_status text default 'pending',
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null
@@ -101,3 +104,53 @@ as $$
   order by similarity desc
   limit match_count;
 $$;
+
+-- Semantic Search Function for Contacts
+create or replace function match_contacts(
+  query_embedding vector(1536), 
+  match_threshold float, 
+  match_count int,
+  company_filter text default null,
+  conference_filter text default null,
+  city_filter text default null,
+  tag_filter text default null
+)
+returns table (
+  id uuid,
+  user_id uuid,
+  first_name text,
+  last_name text,
+  email text,
+  phone text,
+  company text,
+  job_title text,
+  conference_name text,
+  city text,
+  tags text[],
+  similarity float
+)
+language sql stable
+as $$
+  select
+    contacts.id,
+    contacts.user_id,
+    contacts.first_name,
+    contacts.last_name,
+    contacts.email,
+    contacts.phone,
+    contacts.company,
+    contacts.job_title,
+    contacts.conference_name,
+    contacts.city,
+    contacts.tags,
+    1 - (contacts.embedding <=> query_embedding) as similarity
+  from contacts
+  where (1 - (contacts.embedding <=> query_embedding) > match_threshold or query_embedding is null)
+    and (company_filter is null or company ilike '%' || company_filter || '%')
+    and (conference_filter is null or conference_name ilike '%' || conference_filter || '%')
+    and (city_filter is null or city ilike '%' || city_filter || '%')
+    and (tag_filter is null or tag_filter = any(tags))
+  order by similarity desc
+  limit match_count;
+$$;
+

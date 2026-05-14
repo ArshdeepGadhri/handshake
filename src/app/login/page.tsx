@@ -89,7 +89,7 @@ export default function LoginPage() {
                 </p>
               </div>
               <p className="text-[10px] text-muted-foreground/60 pb-2">
-                © 2026 iORGANBIO. All rights reserved.
+                All rights reserved.
               </p>
             </div>
           </CardContent>
