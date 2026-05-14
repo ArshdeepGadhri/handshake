@@ -25,6 +25,7 @@
   --color-surface-tinted: #F0E7F0;
   --color-card-fill: #E5C8E3;
   --color-inverse-text: #F7F1F7;
+  --color-disabled-text: var(--disabled-text);
 
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -39,6 +40,7 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-success: var(--success);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -55,10 +57,10 @@
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --radius-xl: var(--radius-card); /* 12px */
+  --radius-2xl: calc(var(--radius-card) * 1.5);
+  
+  --shadow-card: 0 2px 8px rgba(75, 42, 75, 0.08);
 }
 
 :root {
@@ -74,13 +76,16 @@
   --secondary-foreground: #4B2A4B;
   --muted: #E5C8E3;
   --muted-foreground: #555555;
+  --disabled-text: #888888;
   --accent: #AE5CAA;
   --accent-foreground: #FFFFFF;
   --destructive: #CC4125;
+  --success: #00B050;
   --border: #E5C8E3;
   --input: #D5A6BD;
   --ring: #AE5CAA;
-  --radius: 0.75rem; /* 12px for cards */
+  --radius: 0.5rem; /* 8px for buttons/inputs */
+  --radius-card: 0.75rem; /* 12px for cards */
   
   /* Sidebar uses primary brand colors */
   --sidebar: #4B2A4B;

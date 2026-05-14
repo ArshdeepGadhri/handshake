@@ -123,7 +123,7 @@ function EmailModal({ result, onClose }: { result: EmailResult; onClose: () => v
           <Button
             onClick={handleCopy}
             variant="outline"
-            className="flex-1 border-magenta text-magenta hover:bg-surface-tinted rounded-xl py-5"
+            className="flex-1 rounded-xl py-5"
           >
             {copied ? <Check className="mr-2 w-4 h-4" /> : <Copy className="mr-2 w-4 h-4" />}
             {copied ? 'Copied!' : 'Copy'}
@@ -131,7 +131,8 @@ function EmailModal({ result, onClose }: { result: EmailResult; onClose: () => v
           {result.to && (
             <Button
               onClick={handleMailto}
-              className="flex-1 bg-magenta hover:bg-orchid text-white rounded-xl py-5"
+              variant="accent"
+              className="flex-1 rounded-xl py-5"
             >
               <Mail className="mr-2 w-4 h-4" />
               Open in Mail
@@ -287,7 +288,7 @@ export default function ContactDetailClient({ contact: initialContact }: { conta
                 onClick={handleEditToggle}
                 variant="outline"
                 size="lg"
-                className="text-magenta border-magenta hover:bg-surface-tinted px-4"
+                className="px-4"
               >
                 <Edit3 className="w-4 h-4 mr-1" /> Edit
               </Button>
@@ -304,7 +305,7 @@ export default function ContactDetailClient({ contact: initialContact }: { conta
               <Button
                 onClick={handleSaveEdit}
                 disabled={isSaving}
-                className="bg-magenta hover:bg-orchid text-white"
+                variant="accent"
               >
                 {isSaving ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Save className="w-4 h-4 mr-1" />}
                 Save
@@ -318,7 +319,7 @@ export default function ContactDetailClient({ contact: initialContact }: { conta
         )}
 
         {/* ── Profile Card ── */}
-        <Card className="border-t-4 border-t-magenta">
+        <Card className="border-t-4 border-t-magenta shadow-card">
           <CardContent className="pt-6 flex flex-col items-center text-center">
             <div className="w-20 h-20 rounded-full bg-card-fill flex items-center justify-center text-primary font-bold text-2xl mb-4 shadow-sm">
               {initials}
@@ -482,12 +483,12 @@ export default function ContactDetailClient({ contact: initialContact }: { conta
               onClick={handleSaveNotes}
               disabled={notesSaving}
               variant="outline"
-              className="w-full border-magenta text-magenta hover:bg-surface-tinted rounded-xl py-5"
+              className="w-full rounded-xl py-5"
             >
               {notesSaving ? (
                 <Loader2 className="mr-2 w-4 h-4 animate-spin" />
               ) : notesSaved ? (
-                <Check className="mr-2 w-4 h-4 text-green-500" />
+                <Check className="mr-2 w-4 h-4 text-success" />
               ) : (
                 <Save className="mr-2 w-4 h-4" />
               )}

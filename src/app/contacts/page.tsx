@@ -42,7 +42,7 @@ export default async function ContactsPage({
       <div className="p-4 space-y-6 max-w-lg mx-auto pb-24">
         <div className="flex flex-col space-y-2">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-primary">Your Contacts</h1>
+            <h1 className="text-3xl font-bold text-primary">Your Contacts</h1>
             <ExportButton contacts={displayContacts} />
           </div>
           <p className="text-secondary-foreground text-sm">
@@ -59,10 +59,10 @@ export default async function ContactsPage({
         </div>
 
         <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-          <div className="px-3 py-1 bg-magenta text-primary-foreground text-xs font-semibold rounded-full whitespace-nowrap">
+          <div className="px-3 py-1 bg-magenta text-white text-xs font-semibold rounded-full whitespace-nowrap">
             All
           </div>
-          <div className="px-3 py-1 bg-surface-tinted text-primary text-xs font-semibold rounded-full whitespace-nowrap border border-border">
+          <div className="px-3 py-1 bg-surface-tinted text-primary text-xs font-semibold rounded-[16px] whitespace-nowrap border border-border">
             Needs Follow-up
           </div>
         </div>
@@ -71,7 +71,7 @@ export default async function ContactsPage({
           <div className="text-center py-10 text-muted-foreground">
             <p>{page > 1 ? "No more contacts on this page." : "No contacts found. Start scanning!"}</p>
             {page > 1 && (
-              <Link href="/contacts?page=1" className="text-magenta mt-2 block">
+              <Link href="/contacts?page=1" className={cn(buttonVariants({ variant: "outline" }), "mt-4")}>
                 Go back to page 1
               </Link>
             )}
@@ -88,7 +88,7 @@ export default async function ContactsPage({
                           {contact.first_name?.[0] || ''}{contact.last_name?.[0] || ''}
                         </div>
                         <div className="flex-1 min-w-0 flex flex-col justify-center">
-                          <h3 className="font-bold text-primary truncate leading-tight">
+                          <h3 className="font-semibold text-primary truncate leading-tight">
                             {contact.first_name} {contact.last_name}
                           </h3>
                           <div className="space-y-0.5 mt-0.5">

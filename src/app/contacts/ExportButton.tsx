@@ -11,7 +11,7 @@ export default function ExportButton({ contacts }: { contacts: any[] }) {
   };
 
   return (
-    <Button variant="outline" size="sm" onClick={handleExport} className="border-magenta text-magenta hover:bg-surface-tinted">
+    <Button variant="outline" size="sm" onClick={handleExport}>
       <Download className="w-4 h-4 mr-2" />
       Export
     </Button>
