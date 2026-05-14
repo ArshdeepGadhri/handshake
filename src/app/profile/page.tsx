@@ -32,20 +32,6 @@ export default async function ProfilePage() {
           <p className="text-secondary-foreground text-sm">Manage your account and digital card.</p>
         </div>
 
-        {/* User Info Card */}
-        <Card className="overflow-hidden">
-          <div className="h-20 bg-magenta/10 w-full" />
-          <CardContent className="pt-0 -mt-10 flex flex-col items-center text-center pb-6">
-            <div className="w-20 h-20 rounded-full bg-card border-4 border-background flex items-center justify-center text-primary font-bold text-2xl mb-4 shadow-md">
-              {userInitial}
-            </div>
-            <h2 className="text-xl font-bold text-primary">{user.email?.split('@')[0]}</h2>
-            <p className="text-secondary-foreground text-sm flex items-center mt-1">
-              <Mail className="w-3 h-3 mr-1" /> {user.email}
-            </p>
-          </CardContent>
-        </Card>
-
         {/* Digital Card Preview (if exists) */}
         {profile?.business_card_url && (
           <div className="space-y-2">
@@ -53,10 +39,10 @@ export default async function ProfilePage() {
             <Card className="overflow-hidden bg-surface-tinted/30 border-magenta/20 mx-auto">
               <CardContent className="p-2 flex justify-center">
                 <div className="relative aspect-[3/2] w-full max-w-sm">
-                  <Image 
-                    src={profile.business_card_url} 
-                    alt="Your business card" 
-                    fill 
+                  <Image
+                    src={profile.business_card_url}
+                    alt="Your business card"
+                    fill
                     className="object-contain rounded-lg"
                   />
                 </div>
@@ -67,8 +53,8 @@ export default async function ProfilePage() {
 
         {/* Share Action */}
         <div className="px-2">
-          <ShareCardButton 
-            businessCardUrl={profile?.business_card_url} 
+          <ShareCardButton
+            businessCardUrl={profile?.business_card_url}
             userEmail={user.email}
           />
         </div>
