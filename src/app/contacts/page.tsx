@@ -6,14 +6,16 @@ import Link from 'next/link';
 import ExportButton from './ExportButton';
 import DeleteContactButton from './DeleteContactButton';
 import { createClient } from '@/utils/supabase/server';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 export default async function ContactsPage({
   searchParams,
 }: {
-  searchParams: { page?: string };
+  searchParams: Promise<{ page?: string }>;
 }) {
-  const page = parseInt(searchParams.page || '1', 10);
+  const { page: pageStr } = await searchParams;
+  const page = parseInt(pageStr || '1', 10);
   const pageSize = 5;
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
@@ -129,35 +131,33 @@ export default async function ContactsPage({
             {/* Pagination Controls */}
             {totalPages > 1 && (
               <div className="flex items-center justify-between pt-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  asChild
-                  disabled={page <= 1}
-                  className={page <= 1 ? "pointer-events-none opacity-50" : ""}
+                <Link
+                  href={`/contacts?page=${page - 1}`}
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "sm" }),
+                    "flex items-center gap-1",
+                    page <= 1 && "pointer-events-none opacity-50"
+                  )}
                 >
-                  <Link href={`/contacts?page=${page - 1}`}>
-                    <ChevronLeft className="w-4 h-4 mr-1" />
-                    Previous
-                  </Link>
-                </Button>
+                  <ChevronLeft className="w-4 h-4" />
+                  Previous
+                </Link>
                 
-                <span className="text-sm text-muted-foreground">
+                <span className="text-sm font-medium text-muted-foreground">
                   Page {page} of {totalPages}
                 </span>
 
-                <Button
-                  variant="outline"
-                  size="sm"
-                  asChild
-                  disabled={page >= totalPages}
-                  className={page >= totalPages ? "pointer-events-none opacity-50" : ""}
+                <Link
+                  href={`/contacts?page=${page + 1}`}
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "sm" }),
+                    "flex items-center gap-1",
+                    page >= totalPages && "pointer-events-none opacity-50"
+                  )}
                 >
-                  <Link href={`/contacts?page=${page + 1}`}>
-                    Next
-                    <ChevronRight className="w-4 h-4 ml-1" />
-                  </Link>
-                </Button>
+                  Next
+                  <ChevronRight className="w-4 h-4" />
+                </Link>
               </div>
             )}
           </>
