@@ -225,8 +225,9 @@ export default function ContactDetailClient({ contact: initialContact }: { conta
   };
 
   // ─── Notes save ───────────────────────────────────────────────────────────
-  const handleSaveNotes = async () => {
-    setNotesSaving(true);
+  const handleSaveNotes = async (silent: boolean | React.MouseEvent = false) => {
+    const isSilent = silent === true;
+    if (!isSilent) setNotesSaving(true);
     try {
       const res = await fetch(`/api/contacts/${contact.id}`, {
         method: 'PATCH',
@@ -236,20 +237,25 @@ export default function ContactDetailClient({ contact: initialContact }: { conta
       const json = await res.json();
       if (!res.ok || !json.success) throw new Error(json.error ?? 'Save failed');
       setContact((prev) => ({ ...prev, ...notes }));
-      setNotesSaved(true);
-      if (timersRef.current.notes) clearTimeout(timersRef.current.notes);
-      timersRef.current.notes = setTimeout(() => setNotesSaved(false), 2000);
+      
+      if (!isSilent) {
+        setNotesSaved(true);
+        if (timersRef.current.notes) clearTimeout(timersRef.current.notes);
+        timersRef.current.notes = setTimeout(() => setNotesSaved(false), 2000);
+      }
+      return true;
     } catch (err) {
       console.error('Notes save error:', err);
+      return false;
     } finally {
-      setNotesSaving(false);
+      if (!isSilent) setNotesSaving(false);
     }
   };
 
   // ─── Generate email ───────────────────────────────────────────────────────
   const handleGenerateEmail = async () => {
     // Save latest notes first so the AI has current context
-    await handleSaveNotes();
+    await handleSaveNotes(true);
     setIsGeneratingEmail(true);
     try {
       const res = await fetch(`/api/contacts/${contact.id}/email`, { method: 'POST' });
