@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# iOB Handshake 🤝
 
-## Getting Started
+**AI-Native Networking & CRM for the Modern Professional**
 
-First, run the development server:
+[![Live App](https://img.shields.io/badge/Live-App-magenta?style=for-the-badge)](https://handshake-orcin.vercel.app/)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+iOB Handshake is a high-performance, AI-native CRM designed to bridge the gap between physical networking and digital relationship management. Built for speed and intelligence, it transforms how you scan, search, and engage with your professional network.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## ✨ Key Features
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 🧠 AI-Native Hybrid Search
+Search your network using natural language. Our hybrid search system combines **Semantic Vector Similarity** (OpenAI Embeddings) with **Structured SQL Filtering**.
+- Search by intent: *"investors I met in London interested in biotech"*
+- Filter by dynamic categories: Company, Conference, and custom Tags.
+- Powered by `pgvector` for lightning-fast similarity calculations.
 
-## Learn More
+### 📸 Intelligent Business Card Scanning
+Scan business cards in seconds. Our AI-driven extraction engine automatically:
+- Identifies names, emails, phones, and job titles.
+- **Auto-Duplicate Detection**: Smarter merging logic that appends notes and updates fields if a contact already exists.
+- Captures context: Automatically tags where you met and what you talked about.
 
-To learn more about Next.js, take a look at the following resources:
+### ✉️ AI-Powered Outreach
+Generate personalized follow-up emails in one click. The AI analyzes your meeting notes and contact details to draft high-context, professional emails that actually get replies.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 📱 Mobile-First Digital Business Card
+Your personal digital card is always ready. Share your profile via email or SMS instantly, and let others save your details without needing an app.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 🔒 Privacy & Persistence
+- **Secure Authentication**: Google Auth integration for seamless, secure access.
+- **Robust Storage**: Built on Supabase for enterprise-grade data persistence.
+- **Real-time Updates**: Instant syncing across all your devices.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🚀 Live Demo
+Experience the future of networking at:  
+**[handshake-orcin.vercel.app](https://handshake-orcin.vercel.app/)**
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+*Built with Next.js 15, Supabase, OpenAI, and Tailwind CSS.*
