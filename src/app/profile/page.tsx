@@ -26,7 +26,7 @@ export default async function ProfilePage() {
 
   return (
     <AppLayout>
-      <div className="p-4 space-y-6">
+      <div className="p-4 space-y-6 max-w-lg mx-auto">
         <div className="flex flex-col space-y-2">
           <h1 className="text-2xl font-bold text-primary">Your Profile</h1>
           <p className="text-secondary-foreground text-sm">Manage your account and digital card.</p>
@@ -50,9 +50,9 @@ export default async function ProfilePage() {
         {profile?.business_card_url && (
           <div className="space-y-2">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest px-1">Your Digital Card</p>
-            <Card className="overflow-hidden bg-surface-tinted/30 border-magenta/20">
-              <CardContent className="p-2">
-                <div className="relative aspect-[3/2] w-full">
+            <Card className="overflow-hidden bg-surface-tinted/30 border-magenta/20 mx-auto">
+              <CardContent className="p-2 flex justify-center">
+                <div className="relative aspect-[3/2] w-full max-w-sm">
                   <Image 
                     src={profile.business_card_url} 
                     alt="Your business card" 
