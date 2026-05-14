@@ -39,7 +39,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     <div className="min-h-full flex flex-col bg-background">
       {/* Top Header */}
       <header className="sticky top-0 z-50 w-full border-b border-border bg-primary shadow-sm">
-        <div className="max-w-[1200px] mx-auto px-6 py-3 flex items-center justify-between w-full">
+        <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between w-full">
           <div className="flex items-center">
             <Link href="/contacts">
               <Image
@@ -63,15 +63,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 overflow-y-auto pb-20 max-w-[1200px] mx-auto w-full">
+      <main className="flex-1 overflow-y-auto pb-20 max-w-lg mx-auto w-full">
         {children}
       </main>
 
       {/* Bottom Navigation for Mobile - Simplified to only Scan */}
       <nav className="fixed bottom-0 z-50 w-full border-t border-border bg-card pb-safe h-16">
-        <div className="max-w-[1200px] mx-auto flex items-center justify-center h-full">
-          <Link href="/scan" className="flex items-center justify-center w-14 h-14 bg-magenta rounded-full shadow-lg text-primary-foreground hover:bg-orchid transition-colors -mt-10">
-            <ScanLine className="w-7 h-7" />
+        <div className="max-w-lg mx-auto flex items-center justify-center h-full">
+          <Link href="/scan" className="flex items-center justify-center w-14 h-14 md:w-28 md:h-28 bg-magenta rounded-full shadow-lg text-primary-foreground hover:bg-orchid transition-colors -mt-10 md:-mt-20">
+            <ScanLine className="w-7 h-7 md:w-14 md:h-14" />
           </Link>
         </div>
       </nav>
