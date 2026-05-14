@@ -8,21 +8,35 @@ import { ArrowLeft, Upload, Loader2, CheckCircle2, Image as ImageIcon, X } from 
 import Link from 'next/link';
 import Image from 'next/image';
 import { createClient } from '@/utils/supabase/client';
+import { compressImage } from '@/utils/image';
 
 export default function DigitalCardPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isCompressing, setIsCompressing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setSelectedFile(file);
-      const url = URL.createObjectURL(file);
-      setPreviewUrl(url);
-      setUploadSuccess(false);
+      setIsCompressing(true);
+      try {
+        const compressed = await compressImage(file, { quality: 0.8 });
+        setSelectedFile(compressed);
+        const url = URL.createObjectURL(compressed);
+        setPreviewUrl(url);
+        setUploadSuccess(false);
+      } catch (err) {
+        console.error('Compression failed:', err);
+        // Fallback to original
+        setSelectedFile(file);
+        const url = URL.createObjectURL(file);
+        setPreviewUrl(url);
+      } finally {
+        setIsCompressing(false);
+      }
     }
   };
 
@@ -114,6 +128,14 @@ export default function DigitalCardPage() {
                   <X className="w-4 h-4" />
                 </button>
               )}
+            </div>
+          ) : isCompressing ? (
+            <div className="flex flex-col items-center space-y-4">
+              <Loader2 className="w-10 h-10 animate-spin text-magenta" />
+              <div className="space-y-1">
+                <p className="font-semibold text-primary">Optimizing...</p>
+                <p className="text-xs text-muted-foreground">Reducing file size for faster upload</p>
+              </div>
             </div>
           ) : (
             <div className="flex flex-col items-center space-y-4">

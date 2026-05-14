@@ -8,8 +8,9 @@ import { Camera, Image as ImageIcon, Loader2, X, CheckCircle2, AlertCircle, Arro
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import { compressImage } from '@/utils/image';
 
-type ScanState = 'idle' | 'preview' | 'scanning' | 'success' | 'error';
+type ScanState = 'idle' | 'preview' | 'compressing' | 'scanning' | 'success' | 'error';
 
 export default function ScanPage() {
   const [scanState, setScanState] = useState<ScanState>('idle');
@@ -43,16 +44,28 @@ export default function ScanPage() {
 
 
   // ─── Handle file selected (camera or gallery) ─────────────────────────────
-  const handleFileSelected = useCallback((file: File) => {
+  const handleFileSelected = useCallback(async (file: File) => {
     if (!file.type.startsWith('image/')) {
       setErrorMessage('Please select a valid image file.');
       setScanState('error');
       return;
     }
-    selectedFileRef.current = file;
-    const objectUrl = URL.createObjectURL(file);
-    setPreviewUrl(objectUrl);
-    setScanState('preview');
+    
+    setScanState('compressing');
+    try {
+      const compressed = await compressImage(file, { quality: 0.8 });
+      selectedFileRef.current = compressed;
+      const objectUrl = URL.createObjectURL(compressed);
+      setPreviewUrl(objectUrl);
+      setScanState('preview');
+    } catch (err) {
+      console.error('Compression failed:', err);
+      // Fallback
+      selectedFileRef.current = file;
+      const objectUrl = URL.createObjectURL(file);
+      setPreviewUrl(objectUrl);
+      setScanState('preview');
+    }
   }, []);
 
   const onCameraChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -140,6 +153,17 @@ export default function ScanPage() {
           </div>
         );
 
+      case 'compressing':
+        return (
+          <div className="flex flex-col items-center space-y-4 text-primary">
+            <Loader2 className="w-12 h-12 animate-spin text-magenta" />
+            <div className="space-y-1 text-center">
+              <p className="font-medium">Optimizing image...</p>
+              <p className="text-xs text-muted-foreground px-4">Reducing size for faster scanning</p>
+            </div>
+          </div>
+        );
+
       case 'preview':
         return (
           <div className="relative w-full h-full">
@@ -194,6 +218,7 @@ export default function ScanPage() {
 
   const isIdle = scanState === 'idle';
   const isPreview = scanState === 'preview';
+  const isCompressing = scanState === 'compressing';
   const isScanning = scanState === 'scanning';
   const isSuccess = scanState === 'success';
   const isError = scanState === 'error';
@@ -293,14 +318,14 @@ export default function ScanPage() {
             </>
           )}
 
-          {/* State: scanning → disabled button */}
-          {isScanning && (
+          {/* State: scanning or compressing → disabled button */}
+          {(isScanning || isCompressing) && (
             <Button
               disabled
               className="w-full bg-magenta text-white py-6 text-lg rounded-xl shadow-md"
             >
               <Loader2 className="mr-2 w-5 h-5 animate-spin" />
-              Extracting…
+              {isCompressing ? 'Optimizing…' : 'Extracting…'}
             </Button>
           )}
 
