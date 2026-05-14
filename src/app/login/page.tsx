@@ -73,9 +73,25 @@ export default function LoginPage() {
               </svg>
               Continue with Google
             </Button>
-            {/* <div className="mt-6 text-center text-sm text-muted-foreground">
-              By clicking continue, you agree to our Terms of Service and Privacy Policy.
-            </div> */}
+            <div className="mt-8 pt-6 border-t border-border/50 text-center space-y-4">
+              <p className="text-[11px] leading-relaxed text-muted-foreground uppercase tracking-wider font-medium">
+                Legal & Privacy
+              </p>
+              <p className="text-xs text-muted-foreground px-4 leading-relaxed">
+                By signing in, you agree to our{' '}
+                <a href="#" className="text-magenta hover:underline font-medium">Terms of Service</a>
+                {' '}and acknowledge our{' '}
+                <a href="#" className="text-magenta hover:underline font-medium">Privacy Policy</a>.
+              </p>
+              <div className="bg-surface-tinted/50 rounded-lg p-3 mx-2">
+                <p className="text-[10px] text-secondary-foreground leading-tight">
+                  <span className="font-bold">AI Data Processing:</span> To provide scanning features, uploaded images are processed by secure AI models. Your data is encrypted and never used for training third-party models.
+                </p>
+              </div>
+              <p className="text-[10px] text-muted-foreground/60 pb-2">
+                © 2026 iORGANBIO. All rights reserved.
+              </p>
+            </div>
           </CardContent>
         </Card>
       </div>

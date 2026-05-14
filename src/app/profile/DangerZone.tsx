@@ -29,7 +29,6 @@ export default function DangerZone() {
       const result = await deleteAllContactsAction();
       if (result.success) {
         resetAction();
-        alert('All contacts have been deleted.');
       } else {
         setError(result.error || 'Failed to delete contacts');
       }
