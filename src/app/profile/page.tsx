@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { logOut } from '@/app/actions/auth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import ShareCardButton from './ShareCardButton';
+import DangerZone from './DangerZone';
 
 export default async function ProfilePage() {
   const supabase = await createClient();
@@ -97,6 +98,8 @@ export default async function ProfilePage() {
             </CardContent>
           </Card>
         </div>
+
+        <DangerZone />
       </div>
     </AppLayout>
   );
