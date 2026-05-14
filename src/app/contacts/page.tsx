@@ -14,7 +14,7 @@ export default async function ContactsPage({
   searchParams: { page?: string };
 }) {
   const page = parseInt(searchParams.page || '1', 10);
-  const pageSize = 10;
+  const pageSize = 5;
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
 
