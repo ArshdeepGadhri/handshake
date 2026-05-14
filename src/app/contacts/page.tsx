@@ -23,7 +23,7 @@ export default async function ContactsPage() {
   const displayContacts = contacts || [];
   return (
     <AppLayout>
-      <div className="p-4 space-y-6">
+      <div className="p-4 space-y-6 max-w-lg mx-auto">
         <div className="flex flex-col space-y-2">
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold text-primary">Your Contacts</h1>

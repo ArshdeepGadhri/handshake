@@ -267,7 +267,7 @@ export default function ContactDetailClient({ contact: initialContact }: { conta
 
   return (
     <>
-      <div className="p-4 space-y-5 pb-28">
+      <div className="p-4 space-y-5 pb-28 max-w-lg mx-auto">
         {/* ── Header ── */}
         <div className="flex items-center justify-between">
           <Link href="/contacts" className="flex items-center text-secondary-foreground hover:text-primary transition-colors">

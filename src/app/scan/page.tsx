@@ -219,7 +219,7 @@ export default function ScanPage() {
         aria-label="Upload image from gallery"
       />
 
-      <div className="p-4 space-y-4 h-full flex flex-col">
+      <div className="p-4 space-y-4 h-full flex flex-col max-w-lg mx-auto">
         <div className="flex items-center">
           <Link href="/contacts" className="flex items-center text-secondary-foreground hover:text-primary transition-colors">
             <ArrowLeft className="w-5 h-5 mr-1" />

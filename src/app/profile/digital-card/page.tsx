@@ -99,7 +99,7 @@ export default function DigitalCardPage() {
 
   return (
     <AppLayout>
-      <div className="p-4 space-y-6">
+      <div className="p-4 space-y-6 max-w-lg mx-auto">
         <div className="flex items-center">
           <Link href="/profile" className="flex items-center text-secondary-foreground hover:text-primary transition-colors">
             <ArrowLeft className="w-5 h-5 mr-1" />
