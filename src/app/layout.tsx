@@ -11,7 +11,6 @@ export const metadata: Metadata = {
   title: "iORGANBIO AI CRM",
   description: "AI-powered conference networking CRM for effortless contact management.",
   applicationName: "iORGANBIO",
-  themeColor: "#4B2A4B", // Brand Plum
   appleWebApp: {
     title: "iORGANBIO",
     statusBarStyle: "default",
@@ -21,6 +20,14 @@ export const metadata: Metadata = {
     icon: "/icon.svg",
     apple: "/icon.svg",
   },
+};
+
+export const viewport = {
+  themeColor: "#4B2A4B",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

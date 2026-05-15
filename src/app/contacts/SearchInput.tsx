@@ -29,7 +29,7 @@ export default function SearchInput() {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <Input
           placeholder="AI Search: 'investors from Boston'..."
-          className="pl-9 pr-10 bg-card rounded-xl"
+          className="pl-9 pr-10 bg-card rounded-xl text-xs sm:text-base"
           value={value}
           onChange={(e) => setValue(e.target.value)}
         />
