@@ -14,8 +14,8 @@ import { generateEmbedding } from '@/lib/embeddings';
 export default async function ContactsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ 
-    page?: string; 
+  searchParams: Promise<{
+    page?: string;
     q?: string;
     company?: string;
     conference?: string;
@@ -51,14 +51,14 @@ export default async function ContactsPage({
 
     const { data, error: searchError } = await supabase.rpc('match_contacts', {
       query_embedding: embedding,
-      match_threshold: 0.4, 
-      match_count: 50, 
+      match_threshold: 0.25,
+      match_count: 50,
       company_filter: company || null,
       conference_filter: conference || null,
       city_filter: city || null,
       tag_filter: tag || null,
     });
-    
+
     if (searchError) {
       error = searchError;
     } else {
@@ -73,7 +73,7 @@ export default async function ContactsPage({
       .select('*', { count: 'exact' })
       .order('created_at', { ascending: false })
       .range(from, to);
-    
+
     displayContacts = data || [];
     totalCount = count || 0;
     error = fetchError;
@@ -122,11 +122,11 @@ export default async function ContactsPage({
         </div>
 
         <SearchInput />
-        
-        <FilterDropdowns 
-          companies={companies} 
-          conferences={conferences} 
-          tags={tags} 
+
+        <FilterDropdowns
+          companies={companies}
+          conferences={conferences}
+          tags={tags}
         />
 
 
@@ -165,7 +165,7 @@ export default async function ContactsPage({
                   <ChevronLeft className="w-4 h-4" />
                   Previous
                 </Link>
-                
+
                 <span className="text-sm font-medium text-muted-foreground">
                   Page {page} of {totalPages}
                 </span>
