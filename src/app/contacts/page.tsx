@@ -51,7 +51,7 @@ export default async function ContactsPage({
 
     const { data, error: searchError } = await supabase.rpc('match_contacts', {
       query_embedding: embedding,
-      match_threshold: 0.25,
+      match_threshold: 0.2,
       match_count: 50,
       company_filter: company || null,
       conference_filter: conference || null,
